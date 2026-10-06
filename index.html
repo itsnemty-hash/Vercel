@@ -633,9 +633,10 @@
             <p class="error">Elige al menos un día.</p>
           </div>
           <div class="field" data-field="hora">
-            <div class="label" id="hora-label">¿A qué hora? <small>(hora de Chile)</small></div>
+            <div class="label" id="hora-label">¿A qué hora? <small>(en tu hora local)</small></div>
             <div class="chips" role="radiogroup" aria-labelledby="hora-label" id="horas"></div>
             <p class="tz-note" id="tz-note" hidden></p>
+            <p class="tz-note" id="horas-loading">Cargando horarios…</p>
             <p class="error">Elige una hora.</p>
           </div>
         </fieldset>
@@ -680,7 +681,7 @@
         <p>Si vemos una oportunidad clara, te enviamos una propuesta a medida con alcance, plazos y precio, por ejemplo un asistente de WhatsApp con agenda o una automatización de procesos. Tú decides si avanzar; no hay ninguna obligación.</p>
       </details>
       <details>
-        <summary>¿Trabajas con negocios fuera de Chile?</summary>
+        <summary>¿Trabajas con negocios de cualquier país?</summary>
         <p>Sí. Trabajamos con negocios de España y Latinoamérica. Todo el proceso es en remoto y el formulario te muestra los horarios en tu zona horaria.</p>
       </details>
     </div>
@@ -700,9 +701,7 @@
   "use strict";
 
   var ENDPOINT = "/api/apply";
-  var CHILE_TZ = "America/Santiago";
-  var HOURS = [11, 12, 13, 14, 15, 16, 17, 18];
-  var TITLES = { 1: "Tus datos", 2: "Tu negocio", 3: "Tu horario" };
+  var SLOTS_ENDPOINT = "/api/slots";
 
   var form = document.getElementById("apply-form");
   var steps = form.querySelectorAll(".step");
@@ -716,82 +715,65 @@
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
-  /* ---------- Horas: hora de Chile + equivalente local ---------- */
+  /* ---------- Horas, mostradas en la zona horaria del visitante ---------- */
   var visitorTz = "";
   try { visitorTz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
 
-  // Desfase (minutos) de una zona horaria respecto a UTC en un instante dado.
-  function tzOffset(date, tz) {
-    var parts = new Intl.DateTimeFormat("en-US", {
-      timeZone: tz, hourCycle: "h23",
-      year: "numeric", month: "2-digit", day: "2-digit",
-      hour: "2-digit", minute: "2-digit", second: "2-digit"
-    }).formatToParts(date);
-    var p = {};
-    parts.forEach(function (x) { p[x.type] = x.value; });
-    var asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second);
-    return (asUtc - date.getTime()) / 60000;
-  }
-
-  // Instante real de "hoy a las H:00 en Chile".
-  function chileHourToDate(hour) {
-    var now = new Date();
-    var ymd = new Intl.DateTimeFormat("en-CA", { timeZone: CHILE_TZ, year: "numeric", month: "2-digit", day: "2-digit" })
-      .format(now).split("-");
-    var guess = Date.UTC(+ymd[0], +ymd[1] - 1, +ymd[2], hour, 0, 0);
-    var off = tzOffset(new Date(guess), CHILE_TZ);
-    var d = new Date(guess - off * 60000);
-    var off2 = tzOffset(d, CHILE_TZ);
-    if (off2 !== off) d = new Date(guess - off2 * 60000);
-    return d;
-  }
+  var horas = document.getElementById("horas");
+  var horasLoading = document.getElementById("horas-loading");
+  var localByValue = {};
+  var slotsState = "idle";
 
   function localLabel(date) {
-    return new Intl.DateTimeFormat("es-ES", { timeZone: visitorTz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(date);
+    var opts = { hour: "2-digit", minute: "2-digit", hourCycle: "h23" };
+    if (visitorTz) opts.timeZone = visitorTz;
+    return new Intl.DateTimeFormat("es-ES", opts).format(date);
   }
 
   function cityName(tz) {
-    var city = tz.split("/").pop() || tz;
-    return city.replace(/_/g, " ");
+    return (tz.split("/").pop() || tz).replace(/_/g, " ");
   }
 
-  var showLocal = false;
-  var horas = document.getElementById("horas");
-  var localByHour = {};
-  try {
+  function renderSlots(list) {
+    horas.textContent = "";
+    list.forEach(function (iso) {
+      var local = localLabel(new Date(iso));
+      localByValue[iso] = local;
+      var label = document.createElement("label");
+      label.className = "chip";
+      var input = document.createElement("input");
+      input.type = "radio"; input.name = "hora"; input.value = iso;
+      var span = document.createElement("span");
+      span.textContent = local;
+      label.appendChild(input); label.appendChild(span);
+      horas.appendChild(label);
+    });
+    horasLoading.hidden = true;
     if (visitorTz) {
-      var probe = chileHourToDate(12);
-      showLocal = tzOffset(probe, visitorTz) !== tzOffset(probe, CHILE_TZ);
+      var note = document.getElementById("tz-note");
+      note.textContent = "Horario mostrado en tu zona horaria (" + cityName(visitorTz) + ").";
+      note.hidden = false;
     }
-  } catch (e) { showLocal = false; }
-
-  HOURS.forEach(function (h) {
-    var chile = (h < 10 ? "0" : "") + h + ":00";
-    var label = document.createElement("label");
-    label.className = "chip";
-    var input = document.createElement("input");
-    input.type = "radio"; input.name = "hora"; input.value = chile;
-    var span = document.createElement("span");
-    span.textContent = chile;
-    if (showLocal) {
-      try {
-        var local = localLabel(chileHourToDate(h));
-        localByHour[chile] = local;
-        var alt = document.createElement("small");
-        alt.className = "alt";
-        alt.textContent = local + " tu hora";
-        span.appendChild(alt);
-      } catch (e) {}
-    }
-    label.appendChild(input); label.appendChild(span);
-    horas.appendChild(label);
-  });
-
-  if (showLocal) {
-    var note = document.getElementById("tz-note");
-    note.textContent = "Las horas están en hora de Chile. Al lado ves la equivalencia en tu zona horaria (" + cityName(visitorTz) + ").";
-    note.hidden = false;
   }
+
+  function loadSlots() {
+    if (slotsState === "loading" || slotsState === "ok") return;
+    slotsState = "loading";
+    horasLoading.hidden = false;
+    horasLoading.textContent = "Cargando horarios…";
+    fetch(SLOTS_ENDPOINT).then(function (res) {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }).then(function (json) {
+      if (!json || !json.slots || !json.slots.length) throw new Error("sin horarios");
+      renderSlots(json.slots);
+      slotsState = "ok";
+    }).catch(function () {
+      slotsState = "error";
+      horasLoading.textContent = "No pudimos cargar los horarios. Vuelve a intentarlo en unos segundos.";
+    });
+  }
+  loadSlots();
 
   /* ---------- Validación ---------- */
   function val(name) {
@@ -874,15 +856,17 @@
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     if (!validateStep(current)) return;
-    if (current < 3) { show(current + 1); return; }
+    if (current < 3) {
+      show(current + 1);
+      if (current === 3 && slotsState === "error") loadSlots();
+      return;
+    }
     send();
   });
 
   /* ---------- Envío ---------- */
   function payload() {
     var hora = checked("hora")[0] || "";
-    var horaTexto = hora + " (Chile)";
-    if (localByHour[hora]) horaTexto += " · " + localByHour[hora] + " en " + visitorTz;
     return {
       nombre: val("nombre"),
       email: val("email"),
@@ -895,7 +879,9 @@
       tarea: val("tarea"),
       presupuesto: checked("presupuesto")[0] || "",
       dias: checked("dias").join(", "),
-      hora: horaTexto,
+      hora: hora,
+      hora_local: localByValue[hora] || "",
+      zona: visitorTz,
       empresa_web: val("empresa_web")
     };
   }

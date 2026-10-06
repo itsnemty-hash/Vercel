@@ -2,6 +2,8 @@
 // Al ir de servidor a servidor no hay problemas de CORS y la URL del webhook
 // no queda expuesta en el navegador.
 
+const { agendaHour } = require("./_horario");
+
 const MAKE_WEBHOOK_URL =
   process.env.MAKE_WEBHOOK_URL ||
   "https://hook.us2.make.com/lk3jojw1zqm0u7mmxgjx6kpiqejae7wa";
@@ -50,6 +52,15 @@ module.exports = async function handler(req, res) {
 
   const data = {};
   for (const [name, max] of Object.entries(FIELDS)) data[name] = clean(body[name], max);
+
+  // El navegador envía el instante elegido; aquí se pasa a la hora de la agenda
+  // y se anota la hora local del cliente como referencia.
+  const hora = agendaHour(clean(body.hora, 40));
+  const horaLocal = clean(body.hora_local, 10);
+  const zonaCliente = clean(body.zona, 60);
+  data.hora = hora && horaLocal && horaLocal !== hora
+    ? `${hora} (cliente: ${horaLocal}${zonaCliente ? ", " + zonaCliente : ""})`
+    : hora;
 
   const missing = REQUIRED.filter((name) => !data[name]);
   if (missing.length || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email)) {
