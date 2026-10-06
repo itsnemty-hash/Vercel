@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NEMTY · Auditoría de IA gratuita para tu negocio</title>
+<meta name="description" content="Auditoría de IA gratuita de 20 minutos para pymes de España y Latinoamérica. Descubre si la automatización puede ahorrarte tiempo y ventas.">
+<meta name="theme-color" content="#030503">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Auditoría de IA gratuita para tu negocio · NEMTY">
+<meta property="og:description" content="20 minutos para saber si la automatización puede ahorrarte tiempo y ventas.">
+<meta property="og:image" content="https://nemty-web.vercel.app/logo.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="/logo.jpg">
+<style>
+  :root {
+    --bg: #030503;
+    --panel: #070b07;
+    --field: #0b120c;
+    --line: #1A2B1E;
+    --text: #F2F7F2;
+    --muted: #9AA89C;
+    --lime: #C6FF00;
+    --green: #3DFF5A;
+    --error: #FF5C5C;
+    --grad: linear-gradient(90deg, var(--lime), var(--green));
+    --display: "Syne", "Helvetica Neue", Arial, sans-serif;
+    --body: "Manrope", "Helvetica Neue", Arial, sans-serif;
+    --radius: 18px;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; overflow-x: clip; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; }
+  :focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+
+  /* ---------- Layout ---------- */
+  .page {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 1024px) {
+    .page {
+      grid-template-columns: minmax(0, 1fr) 420px;
+      column-gap: 56px;
+      padding: 0 40px;
+    }
+    .page > section, .page > header { grid-column: 1; }
+    .apply {
+      grid-column: 2;
+      grid-row: 1 / span 5;
+      align-self: start;
+      position: sticky;
+      top: 24px;
+      margin-top: 24px;
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--line) transparent;
+    }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    min-height: min(860px, 100svh);
+    display: flex;
+    flex-direction: column;
+    padding: 28px 0 56px;
+    isolation: isolate;
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    position: relative;
+    z-index: 2;
+  }
+  .brand {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 24px;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+  .handle {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 15px;
+    transition: color .2s;
+  }
+  .handle:hover { color: var(--text); }
+
+  .hero-art {
+    position: absolute;
+    z-index: -1;
+    top: 40px;
+    right: -18%;
+    width: min(760px, 115%);
+    aspect-ratio: 1;
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+            mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+  }
+  .hero-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: screen;
+    animation: breathe 7s ease-in-out infinite;
+    transform-origin: 50% 50%;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1);    filter: brightness(.9) saturate(1); }
+    50%      { transform: scale(1.04); filter: brightness(1.12) saturate(1.1); }
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0 -20px;
+    z-index: -1;
+    background: linear-gradient(180deg, transparent 55%, var(--bg) 100%);
+    pointer-events: none;
+  }
+  .hero-copy {
+    margin-top: auto;
+    padding-top: 300px;
+    max-width: 640px;
+  }
+  h1, h2, h3 { font-family: var(--display); font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  h1 {
+    font-size: clamp(40px, 7.4vw, 76px);
+    line-height: 1.02;
+    font-weight: 800;
+    text-shadow: 0 2px 30px rgba(0,0,0,.6);
+  }
+  .lead {
+    margin: 24px 0 0;
+    color: var(--muted);
+    font-size: clamp(18px, 2.1vw, 22px);
+    line-height: 1.55;
+    max-width: 34ch;
+  }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 36px;
+    padding: 20px 40px;
+    border-radius: 999px;
+    background: var(--grad);
+    color: #061006;
+    font-weight: 700;
+    font-size: 18px;
+    text-decoration: none;
+    box-shadow: 0 0 40px rgba(124, 255, 40, .28), inset 0 1px 0 rgba(255,255,255,.35);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .cta:hover { transform: translateY(-2px); box-shadow: 0 0 56px rgba(124, 255, 40, .42), inset 0 1px 0 rgba(255,255,255,.35); }
+  .note { margin: 18px 0 0; color: var(--muted); font-size: 15px; }
+
+  @media (min-width: 1024px) {
+    .hero { min-height: min(900px, 100vh); padding-bottom: 72px; }
+    .hero-art { right: -4%; top: 10px; width: 600px; }
+    .hero-copy { padding-top: 200px; }
+    h1 { font-size: clamp(44px, 4.6vw, 62px); }
+  }
+
+  /* ---------- Sections ---------- */
+  .section { padding: 72px 0; border-top: 1px solid var(--line); }
+  .eyebrow {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 14px;
+  }
+  .section h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.12; max-width: 22ch; }
+  .section-intro { color: var(--muted); margin: 16px 0 0; max-width: 56ch; }
+
+  .cards {
+    display: grid;
+    gap: 16px;
+    margin-top: 36px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 720px) { .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .card {
+    position: relative;
+    padding: 26px 22px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, rgba(61,255,90,.05), rgba(61,255,90,0) 60%), var(--panel);
+  }
+  .card-icon {
+    width: 40px; height: 40px;
+    display: grid; place-items: center;
+    border-radius: 12px;
+    border: 1px solid rgba(124,255,40,.35);
+    color: var(--lime);
+    margin-bottom: 18px;
+  }
+  .card h3 { font-size: 19px; }
+  .card p { margin: 10px 0 0; color: var(--muted); font-size: 15px; }
+
+  .steps { list-style: none; margin: 36px 0 0; padding: 0; display: grid; gap: 0; counter-reset: step; }
+  .steps li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 18px;
+    padding: 0 0 30px;
+  }
+  .steps li:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 25px; top: 52px; bottom: 4px;
+    width: 1px;
+    background: var(--line);
+  }
+  .step-num {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--lime);
+    border: 1px solid rgba(124,255,40,.4);
+    background: radial-gradient(circle, rgba(124,255,40,.12), transparent 70%);
+  }
+  .steps h3 { font-size: 19px; padding-top: 12px; }
+  .steps p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+
+  .faq { margin-top: 32px; border-top: 1px solid var(--line); }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 22px 40px 22px 0;
+    position: relative;
+    font-weight: 600;
+    font-size: 17px;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after {
+    content: "";
+    position: absolute;
+    right: 6px; top: 50%;
+    width: 10px; height: 10px;
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: translateY(-70%) rotate(45deg);
+    transition: transform .2s;
+  }
+  .faq details[open] summary::after { transform: translateY(-30%) rotate(-135deg); }
+  .faq details p { margin: 0 0 22px; color: var(--muted); max-width: 62ch; }
+
+  .footer {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--line);
+    padding: 32px 0 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+    align-items: center;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .footer .brand { font-size: 18px; color: var(--text); margin-right: auto; }
+  .footer a { text-decoration: none; }
+  .footer a:hover { color: var(--text); }
+
+  /* ---------- Form panel ---------- */
+  .apply {
+    scroll-margin-top: 16px;
+    margin: 8px 0 40px;
+    padding: 28px 22px;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    background: var(--panel);
+    box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.02) inset;
+  }
+  @media (min-width: 480px) { .apply { padding: 32px 26px; } }
+  .progress { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .progress span { height: 3px; border-radius: 3px; background: var(--line); transition: background .3s; }
+  .progress span.on { background: var(--grad); }
+  .step-label { margin: 22px 0 4px; color: var(--muted); font-size: 14px; }
+  .step-title { font-size: 24px; margin-bottom: 8px; }
+
+  .field { margin-top: 22px; }
+  .field > label, .field > .label {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .label small { font-weight: 500; color: var(--muted); }
+  .input {
+    width: 100%;
+    font: inherit;
+    font-size: 16px;
+    color: var(--text);
+    background: var(--field);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 16px;
+    transition: border-color .2s, box-shadow .2s;
+    appearance: none;
+  }
+  .input::placeholder { color: #5f6d61; }
+  .input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(61,255,90,.14); }
+  textarea.input { min-height: 120px; resize: vertical; line-height: 1.45; }
+  select.input {
+    cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 22px) 50%, calc(100% - 16px) 50%;
+    background-size: 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 44px;
+  }
+  select.input option { background: #0b120c; color: var(--text); }
+  .invalid .input, .input.invalid { border-color: var(--error); }
+  .error { display: none; color: var(--error); font-size: 13.5px; margin-top: 8px; }
+  .invalid .error { display: block; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; border: 0; padding: 0; margin: 0; min-width: 0; }
+  .chip { position: relative; }
+  .chip input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 46px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--field);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color .2s, background .2s, color .2s;
+  }
+  .chip span:hover { border-color: #2c4a33; }
+  .chip input:checked + span {
+    border-color: var(--green);
+    background: rgba(61,255,90,.1);
+    color: #fff;
+    box-shadow: 0 0 0 1px rgba(61,255,90,.35) inset;
+  }
+  .chip input:focus-visible + span { outline: 2px solid var(--lime); outline-offset: 2px; }
+  .invalid .chip span { border-color: rgba(255,92,92,.55); }
+  .chip .alt { color: var(--muted); font-size: 13px; margin-left: 8px; font-weight: 500; }
+  .chip input:checked + span .alt { color: #c8d6ca; }
+  .tz-note { margin: 10px 0 0; color: var(--muted); font-size: 13.5px; }
+
+  .hp { position: absolute !important; left: -10000px !important; width: 1px; height: 1px; overflow: hidden; }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .btn {
+    font: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    border: 0;
+    cursor: pointer;
+    border-radius: 999px;
+    padding: 16px 34px;
+    background: var(--grad);
+    color: #061006;
+    box-shadow: 0 0 28px rgba(124,255,40,.25);
+    transition: transform .2s, opacity .2s;
+    margin-left: auto;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn[disabled] { opacity: .6; cursor: progress; transform: none; }
+  .btn-ghost {
+    font: inherit;
+    background: none;
+    border: 0;
+    color: var(--muted);
+    padding: 12px 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .btn-ghost:hover { color: var(--text); }
+  .form-error { color: var(--error); font-size: 14px; margin: 16px 0 0; }
+
+  .done { text-align: left; padding: 8px 0 4px; }
+  .done-icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--grad);
+    color: #061006;
+    margin-bottom: 22px;
+    box-shadow: 0 0 36px rgba(124,255,40,.35);
+  }
+  .done h2 { font-size: 26px; }
+  .done p { color: var(--muted); margin: 12px 0 0; }
+
+  [hidden] { display: none !important; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .hero-art img { animation: none; }
+  }
+  @media (max-width: 420px) {
+    .hero-art { right: -34%; width: 125%; top: 70px; }
+    .hero-copy { padding-top: 250px; }
+    .cta { width: 100%; padding: 19px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="hero">
+    <nav class="nav" aria-label="Principal">
+      <a class="brand" href="/">NEMTY</a>
+      <a class="handle" href="https://instagram.com/itsnemty" target="_blank" rel="noopener">@itsnemty</a>
+    </nav>
+    <div class="hero-art" aria-hidden="true">
+      <img src="/logo.jpg" alt="" width="1080" height="1080" fetchpriority="high">
+    </div>
+    <div class="hero-copy">
+      <h1>Auditoría de IA gratuita para tu negocio</h1>
+      <p class="lead">20 minutos para saber si la automatización puede ahorrarte tiempo y ventas.</p>
+      <a class="cta" href="#aplicar">Aplicar a la auditoría</a>
+      <p class="note">Cupos limitados cada día. Respuesta en menos de 24 horas.</p>
+    </div>
+  </header>
+
+  <section class="section" aria-labelledby="revisamos-title">
+    <span class="eyebrow">La auditoría</span>
+    <h2 id="revisamos-title">Lo que revisamos en 20 minutos</h2>
+    <p class="section-intro">Analizamos los procesos donde tu negocio pierde más tiempo y te decimos con claridad qué se puede automatizar y qué no.</p>
+    <div class="cards">
+      <article class="card">
+        <div class="card-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+        </div>
+        <h3>Atención al cliente</h3>
+        <p>Cómo respondes hoy por WhatsApp e Instagram, cuánto tardas y cuántas consultas se quedan sin respuesta.</p>
+      </article>
+      <article class="card">
+        <div class="card-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        </div>
+        <h3>Agenda y reservas</h3>
+        <p>Cómo se agendan, confirman y recuerdan las citas, y dónde se pierden clientes por el camino.</p>
+      </article>
+      <article class="card">
+        <div class="card-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+        </div>
+        <h3>Tareas repetitivas</h3>
+        <p>Cotizaciones, seguimientos, registros y otras tareas manuales que hoy consumen horas de tu equipo.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="como-title">
+    <span class="eyebrow">El proceso</span>
+    <h2 id="como-title">Cómo funciona</h2>
+    <ol class="steps">
+      <li>
+        <span class="step-num">1</span>
+        <div>
+          <h3>Aplicas</h3>
+          <p>Completas el formulario con los datos de tu negocio. Te toma unos dos minutos.</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <div>
+          <h3>Revisamos tu negocio</h3>
+          <p>Estudiamos tu caso antes de responder. Si podemos ayudarte, recibirás la confirmación por correo en menos de 24 horas.</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">3</span>
+        <div>
+          <h3>Videollamada de 20 minutos</h3>
+          <p>Revisamos juntos tus procesos y te mostramos qué se puede automatizar y cuánto tiempo podrías recuperar.</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">4</span>
+        <div>
+          <h3>Propuesta a medida</h3>
+          <p>Solo si decides avanzar, te enviamos una propuesta con alcance, plazos y precio cerrados.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <aside class="apply" id="aplicar" aria-label="Formulario de solicitud">
+    <form id="apply-form" novalidate>
+      <div id="form-steps">
+        <div class="progress" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
+        <p class="step-label" id="step-label" aria-live="polite">Paso 1 de 3</p>
+
+        <!-- Paso 1 -->
+        <fieldset class="step" data-step="1" style="border:0;padding:0;margin:0;min-width:0">
+          <legend class="step-title" style="font-family:var(--display);font-weight:700;padding:0">Tus datos</legend>
+          <div class="field" data-field="nombre">
+            <label for="nombre">Nombre y apellido</label>
+            <input class="input" id="nombre" name="nombre" type="text" autocomplete="name" placeholder="María González" maxlength="120">
+            <p class="error">Escribe tu nombre y apellido.</p>
+          </div>
+          <div class="field" data-field="email">
+            <label for="email">Correo electrónico</label>
+            <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="tu@correo.com" maxlength="160">
+            <p class="error">Escribe un correo válido.</p>
+          </div>
+          <div class="field" data-field="whatsapp">
+            <label for="whatsapp">WhatsApp <small class="label-hint" style="font-weight:500;color:var(--muted)">(con código de país)</small></label>
+            <input class="input" id="whatsapp" name="whatsapp" type="tel" autocomplete="tel" inputmode="tel" placeholder="+34 600 000 000" maxlength="30">
+            <p class="error">Escribe tu número con el código de país, por ejemplo +34 600 000 000.</p>
+          </div>
+          <div class="field" data-field="pais">
+            <label for="pais">País</label>
+            <select class="input" id="pais" name="pais" autocomplete="country-name">
+              <option value="" selected disabled>Selecciona tu país</option>
+              <option>España</option>
+              <option>Chile</option>
+              <option>México</option>
+              <option>Argentina</option>
+              <option>Colombia</option>
+              <option>Perú</option>
+              <option>Otro país</option>
+            </select>
+            <p class="error">Selecciona tu país.</p>
+          </div>
+        </fieldset>
+
+        <!-- Paso 2 -->
+        <fieldset class="step" data-step="2" hidden style="border:0;padding:0;margin:0;min-width:0">
+          <legend class="step-title" style="font-family:var(--display);font-weight:700;padding:0">Tu negocio</legend>
+          <div class="field" data-field="negocio">
+            <label for="negocio">Nombre del negocio y rubro</label>
+            <input class="input" id="negocio" name="negocio" type="text" autocomplete="organization" placeholder="Clínica Dental Sonrisa, salud" maxlength="160">
+            <p class="error">Indica el nombre y el rubro de tu negocio.</p>
+          </div>
+          <div class="field" data-field="web">
+            <label for="web">Instagram o página web</label>
+            <input class="input" id="web" name="web" type="text" autocomplete="url" placeholder="@tunegocio o tunegocio.com" maxlength="200">
+            <p class="error">Indica tu Instagram o página web.</p>
+          </div>
+          <div class="field" data-field="mensajes">
+            <div class="label" id="mensajes-label">¿Cuántos mensajes recibes al día por WhatsApp o Instagram?</div>
+            <div class="chips" role="radiogroup" aria-labelledby="mensajes-label">
+              <label class="chip"><input type="radio" name="mensajes" value="Menos de 20"><span>Menos de 20</span></label>
+              <label class="chip"><input type="radio" name="mensajes" value="20 a 50"><span>20 a 50</span></label>
+              <label class="chip"><input type="radio" name="mensajes" value="50 a 100"><span>50 a 100</span></label>
+              <label class="chip"><input type="radio" name="mensajes" value="Más de 100"><span>Más de 100</span></label>
+            </div>
+            <p class="error">Elige una opción.</p>
+          </div>
+          <div class="field" data-field="agenda">
+            <div class="label" id="agenda-label">¿Cómo agendas hoy a tus clientes?</div>
+            <div class="chips" role="radiogroup" aria-labelledby="agenda-label">
+              <label class="chip"><input type="radio" name="agenda" value="A mano, por chat"><span>A mano, por chat</span></label>
+              <label class="chip"><input type="radio" name="agenda" value="Con una app o sistema"><span>Con una app o sistema</span></label>
+              <label class="chip"><input type="radio" name="agenda" value="No agendo citas"><span>No agendo citas</span></label>
+            </div>
+            <p class="error">Elige una opción.</p>
+          </div>
+          <div class="field" data-field="tarea">
+            <label for="tarea">¿Qué tarea te quita más tiempo?</label>
+            <textarea class="input" id="tarea" name="tarea" placeholder="Responder las mismas preguntas todo el día, confirmar citas, cotizar…" maxlength="1500"></textarea>
+            <p class="error">Cuéntanos brevemente qué tarea te quita más tiempo.</p>
+          </div>
+          <div class="field" data-field="presupuesto">
+            <div class="label" id="presupuesto-label">¿Cuánto estás dispuesto a invertir para automatizar tu negocio?</div>
+            <div class="chips" role="radiogroup" aria-labelledby="presupuesto-label">
+              <label class="chip"><input type="radio" name="presupuesto" value="Menos de 150 €"><span>Menos de 150 €</span></label>
+              <label class="chip"><input type="radio" name="presupuesto" value="150 € a 500 €"><span>150 € a 500 €</span></label>
+              <label class="chip"><input type="radio" name="presupuesto" value="500 € a 1.000 €"><span>500 € a 1.000 €</span></label>
+              <label class="chip"><input type="radio" name="presupuesto" value="1.000 € a 2.500 €"><span>1.000 € a 2.500 €</span></label>
+              <label class="chip"><input type="radio" name="presupuesto" value="2.500 € a 5.000 €"><span>2.500 € a 5.000 €</span></label>
+              <label class="chip"><input type="radio" name="presupuesto" value="Más de 5.000 €"><span>Más de 5.000 €</span></label>
+              <label class="chip"><input type="radio" name="presupuesto" value="Aún no lo sé"><span>Aún no lo sé</span></label>
+            </div>
+            <p class="error">Elige una opción.</p>
+          </div>
+        </fieldset>
+
+        <!-- Paso 3 -->
+        <fieldset class="step" data-step="3" hidden style="border:0;padding:0;margin:0;min-width:0">
+          <legend class="step-title" style="font-family:var(--display);font-weight:700;padding:0">Tu horario</legend>
+          <div class="field" data-field="dias">
+            <div class="label" id="dias-label">¿Qué días te vienen mejor? <small>(puedes elegir varios)</small></div>
+            <div class="chips" role="group" aria-labelledby="dias-label">
+              <label class="chip"><input type="checkbox" name="dias" value="Lunes"><span>Lunes</span></label>
+              <label class="chip"><input type="checkbox" name="dias" value="Martes"><span>Martes</span></label>
+              <label class="chip"><input type="checkbox" name="dias" value="Miércoles"><span>Miércoles</span></label>
+              <label class="chip"><input type="checkbox" name="dias" value="Jueves"><span>Jueves</span></label>
+              <label class="chip"><input type="checkbox" name="dias" value="Viernes"><span>Viernes</span></label>
+            </div>
+            <p class="error">Elige al menos un día.</p>
+          </div>
+          <div class="field" data-field="hora">
+            <div class="label" id="hora-label">¿A qué hora? <small>(hora de Chile)</small></div>
+            <div class="chips" role="radiogroup" aria-labelledby="hora-label" id="horas"></div>
+            <p class="tz-note" id="tz-note" hidden></p>
+            <p class="error">Elige una hora.</p>
+          </div>
+        </fieldset>
+
+        <div class="hp" aria-hidden="true">
+          <label for="empresa_web">No completar este campo</label>
+          <input id="empresa_web" name="empresa_web" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+
+        <div class="actions">
+          <button type="button" class="btn-ghost" id="back" hidden>Volver</button>
+          <button type="submit" class="btn" id="next">Continuar</button>
+        </div>
+      </div>
+
+      <div class="done" id="done" hidden tabindex="-1">
+        <div class="done-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </div>
+        <h2>Solicitud recibida</h2>
+        <p>Revisaremos tu negocio antes de responder. Si podemos ayudarte, recibirás la confirmación con el enlace a la videollamada en menos de 24 horas.</p>
+      </div>
+    </form>
+  </aside>
+
+  <section class="section" aria-labelledby="faq-title">
+    <span class="eyebrow">Dudas</span>
+    <h2 id="faq-title">Preguntas frecuentes</h2>
+    <div class="faq">
+      <details>
+        <summary>¿Cuánto cuesta la auditoría?</summary>
+        <p>Nada. La auditoría es gratuita y sin compromiso. Al terminar sabrás qué se puede automatizar en tu negocio, decidas o no trabajar con nosotros.</p>
+      </details>
+      <details>
+        <summary>¿Necesito conocimientos técnicos?</summary>
+        <p>No. Solo necesitas conocer bien tu negocio. Nosotros nos encargamos de la parte técnica y te lo explicamos todo en lenguaje claro.</p>
+      </details>
+      <details>
+        <summary>¿Qué pasa después de la llamada?</summary>
+        <p>Si vemos una oportunidad clara, te enviamos una propuesta a medida con alcance, plazos y precio, por ejemplo un asistente de WhatsApp con agenda o una automatización de procesos. Tú decides si avanzar; no hay ninguna obligación.</p>
+      </details>
+      <details>
+        <summary>¿Trabajas con negocios fuera de Chile?</summary>
+        <p>Sí. Trabajamos con negocios de España y Latinoamérica. Todo el proceso es en remoto y el formulario te muestra los horarios en tu zona horaria.</p>
+      </details>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span class="brand">NEMTY</span>
+    <a href="https://instagram.com/itsnemty" target="_blank" rel="noopener">@itsnemty</a>
+    <a href="mailto:itsnemty@gmail.com">itsnemty@gmail.com</a>
+    <span>© <span id="year">2026</span> NEMTY</span>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var ENDPOINT = "/api/apply";
+  var CHILE_TZ = "America/Santiago";
+  var HOURS = [11, 12, 13, 14, 15, 16, 17, 18];
+  var TITLES = { 1: "Tus datos", 2: "Tu negocio", 3: "Tu horario" };
+
+  var form = document.getElementById("apply-form");
+  var steps = form.querySelectorAll(".step");
+  var bars = form.querySelectorAll(".progress span");
+  var stepLabel = document.getElementById("step-label");
+  var nextBtn = document.getElementById("next");
+  var backBtn = document.getElementById("back");
+  var formError = document.getElementById("form-error");
+  var panel = document.getElementById("aplicar");
+  var current = 1;
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  /* ---------- Horas: hora de Chile + equivalente local ---------- */
+  var visitorTz = "";
+  try { visitorTz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
+
+  // Desfase (minutos) de una zona horaria respecto a UTC en un instante dado.
+  function tzOffset(date, tz) {
+    var parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz, hourCycle: "h23",
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", second: "2-digit"
+    }).formatToParts(date);
+    var p = {};
+    parts.forEach(function (x) { p[x.type] = x.value; });
+    var asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second);
+    return (asUtc - date.getTime()) / 60000;
+  }
+
+  // Instante real de "hoy a las H:00 en Chile".
+  function chileHourToDate(hour) {
+    var now = new Date();
+    var ymd = new Intl.DateTimeFormat("en-CA", { timeZone: CHILE_TZ, year: "numeric", month: "2-digit", day: "2-digit" })
+      .format(now).split("-");
+    var guess = Date.UTC(+ymd[0], +ymd[1] - 1, +ymd[2], hour, 0, 0);
+    var off = tzOffset(new Date(guess), CHILE_TZ);
+    var d = new Date(guess - off * 60000);
+    var off2 = tzOffset(d, CHILE_TZ);
+    if (off2 !== off) d = new Date(guess - off2 * 60000);
+    return d;
+  }
+
+  function localLabel(date) {
+    return new Intl.DateTimeFormat("es-ES", { timeZone: visitorTz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(date);
+  }
+
+  function cityName(tz) {
+    var city = tz.split("/").pop() || tz;
+    return city.replace(/_/g, " ");
+  }
+
+  var showLocal = false;
+  var horas = document.getElementById("horas");
+  var localByHour = {};
+  try {
+    if (visitorTz) {
+      var probe = chileHourToDate(12);
+      showLocal = tzOffset(probe, visitorTz) !== tzOffset(probe, CHILE_TZ);
+    }
+  } catch (e) { showLocal = false; }
+
+  HOURS.forEach(function (h) {
+    var chile = (h < 10 ? "0" : "") + h + ":00";
+    var label = document.createElement("label");
+    label.className = "chip";
+    var input = document.createElement("input");
+    input.type = "radio"; input.name = "hora"; input.value = chile;
+    var span = document.createElement("span");
+    span.textContent = chile;
+    if (showLocal) {
+      try {
+        var local = localLabel(chileHourToDate(h));
+        localByHour[chile] = local;
+        var alt = document.createElement("small");
+        alt.className = "alt";
+        alt.textContent = local + " tu hora";
+        span.appendChild(alt);
+      } catch (e) {}
+    }
+    label.appendChild(input); label.appendChild(span);
+    horas.appendChild(label);
+  });
+
+  if (showLocal) {
+    var note = document.getElementById("tz-note");
+    note.textContent = "Las horas están en hora de Chile. Al lado ves la equivalencia en tu zona horaria (" + cityName(visitorTz) + ").";
+    note.hidden = false;
+  }
+
+  /* ---------- Validación ---------- */
+  function val(name) {
+    var el = form.elements[name];
+    return el && typeof el.value === "string" ? el.value.trim() : "";
+  }
+  function checked(name) {
+    return Array.prototype.slice.call(form.querySelectorAll('input[name="' + name + '"]:checked'))
+      .map(function (i) { return i.value; });
+  }
+
+  var rules = {
+    nombre: function () { return val("nombre").length >= 3 && /\S+\s+\S+/.test(val("nombre")); },
+    email: function () { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val("email")); },
+    whatsapp: function () {
+      var v = val("whatsapp");
+      var digits = v.replace(/\D/g, "");
+      return /^\+?[\d\s().-]+$/.test(v) && v.charAt(0) === "+" && digits.length >= 8 && digits.length <= 15;
+    },
+    pais: function () { return !!val("pais"); },
+    negocio: function () { return val("negocio").length >= 2; },
+    web: function () { return val("web").length >= 3; },
+    mensajes: function () { return checked("mensajes").length === 1; },
+    agenda: function () { return checked("agenda").length === 1; },
+    tarea: function () { return val("tarea").length >= 3; },
+    presupuesto: function () { return checked("presupuesto").length === 1; },
+    dias: function () { return checked("dias").length > 0; },
+    hora: function () { return checked("hora").length === 1; }
+  };
+
+  function validateField(name) {
+    var wrap = form.querySelector('[data-field="' + name + '"]');
+    var ok = rules[name]();
+    wrap.classList.toggle("invalid", !ok);
+    var input = wrap.querySelector(".input");
+    if (input) input.setAttribute("aria-invalid", ok ? "false" : "true");
+    return ok;
+  }
+
+  function validateStep(n) {
+    var fields = steps[n - 1].querySelectorAll("[data-field]");
+    var firstBad = null;
+    Array.prototype.forEach.call(fields, function (f) {
+      var ok = validateField(f.getAttribute("data-field"));
+      if (!ok && !firstBad) firstBad = f;
+    });
+    if (firstBad) {
+      var focusable = firstBad.querySelector("input, select, textarea");
+      if (focusable) focusable.focus({ preventScroll: true });
+      firstBad.scrollIntoView({ behavior: "smooth", block: "center" });
+      return false;
+    }
+    return true;
+  }
+
+  // Revalidar en vivo solo los campos ya marcados con error.
+  form.addEventListener("input", onChange);
+  form.addEventListener("change", onChange);
+  function onChange(e) {
+    var wrap = e.target.closest("[data-field]");
+    if (wrap && wrap.classList.contains("invalid")) validateField(wrap.getAttribute("data-field"));
+  }
+
+  /* ---------- Navegación entre pasos ---------- */
+  function show(n) {
+    current = n;
+    Array.prototype.forEach.call(steps, function (s, i) { s.hidden = i !== n - 1; });
+    Array.prototype.forEach.call(bars, function (b, i) { b.classList.toggle("on", i < n); });
+    stepLabel.textContent = "Paso " + n + " de 3";
+    backBtn.hidden = n === 1;
+    nextBtn.textContent = n === 3 ? "Enviar solicitud" : "Continuar";
+    formError.hidden = true;
+    panel.scrollTop = 0;
+    var rect = panel.getBoundingClientRect();
+    if (rect.top < 0 || rect.top > window.innerHeight * 0.5) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  backBtn.addEventListener("click", function () { if (current > 1) show(current - 1); });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!validateStep(current)) return;
+    if (current < 3) { show(current + 1); return; }
+    send();
+  });
+
+  /* ---------- Envío ---------- */
+  function payload() {
+    var hora = checked("hora")[0] || "";
+    var horaTexto = hora + " (Chile)";
+    if (localByHour[hora]) horaTexto += " · " + localByHour[hora] + " en " + visitorTz;
+    return {
+      nombre: val("nombre"),
+      email: val("email"),
+      whatsapp: val("whatsapp"),
+      pais: val("pais"),
+      negocio: val("negocio"),
+      web: val("web"),
+      mensajes: checked("mensajes")[0] || "",
+      agenda: checked("agenda")[0] || "",
+      tarea: val("tarea"),
+      presupuesto: checked("presupuesto")[0] || "",
+      dias: checked("dias").join(", "),
+      hora: horaTexto,
+      empresa_web: val("empresa_web")
+    };
+  }
+
+  function finish() {
+    document.getElementById("form-steps").hidden = true;
+    var done = document.getElementById("done");
+    done.hidden = false;
+    panel.scrollTop = 0;
+    done.focus({ preventScroll: true });
+    var rect = panel.getBoundingClientRect();
+    if (rect.top < 0) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function send() {
+    var data = payload();
+    // Campo anti-spam: si un bot lo rellena, fingimos éxito sin enviar nada.
+    if (data.empresa_web) { finish(); return; }
+
+    nextBtn.disabled = true;
+    nextBtn.textContent = "Enviando…";
+    formError.hidden = true;
+
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }).then(function (res) {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      finish();
+    }).catch(function () {
+      nextBtn.disabled = false;
+      nextBtn.textContent = "Enviar solicitud";
+      formError.textContent = "No pudimos enviar tu solicitud. Inténtalo de nuevo en unos segundos o escríbenos a itsnemty@gmail.com.";
+      formError.hidden = false;
+    });
+  }
+})();
+</script>
+</body>
+</html>
