@@ -3,6 +3,7 @@
 // no queda expuesta en el navegador.
 
 const { agendaHour } = require("./_horario");
+const { enviarAviso } = require("./_aviso");
 
 const MAKE_WEBHOOK_URL =
   process.env.MAKE_WEBHOOK_URL ||
@@ -67,21 +68,31 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ ok: false, error: "Faltan datos", fields: missing });
   }
 
-  try {
-    const response = await fetch(MAKE_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-      signal: AbortSignal.timeout(10000),
-    });
-    if (!response.ok) {
-      const text = await response.text().catch(() => "");
-      console.error("Make respondió", response.status, text.slice(0, 300));
-      return res.status(502).json({ ok: false, error: "No se pudo registrar la solicitud" });
-    }
+  // Se registra en Make y se avisa por correo a la vez; basta con que una de
+  // las dos cosas funcione para no perder la solicitud.
+  const [make, aviso] = await Promise.allSettled([
+    enviarAMake(data),
+    enviarAviso(data),
+  ]);
+  if (make.status === "rejected") console.error("Error al contactar con Make:", make.reason);
+  if (aviso.status === "rejected") console.error("Error al enviar el aviso por correo:", aviso.reason);
+  else if (aviso.value === false) console.warn("Aviso por correo desactivado: falta GMAIL_APP_PASSWORD");
+
+  if (make.status === "fulfilled" || (aviso.status === "fulfilled" && aviso.value)) {
     return res.status(200).json({ ok: true });
-  } catch (err) {
-    console.error("Error al contactar con Make:", err);
-    return res.status(502).json({ ok: false, error: "No se pudo registrar la solicitud" });
   }
+  return res.status(502).json({ ok: false, error: "No se pudo registrar la solicitud" });
 };
+
+async function enviarAMake(data) {
+  const response = await fetch(MAKE_WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`Make respondió ${response.status} ${text.slice(0, 300)}`);
+  }
+}
